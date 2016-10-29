@@ -51,19 +51,25 @@ def get_bet_info(base_url, username, password, bet, favourable_odds = 1.91):
     headers = {'Content-length' : '0',
                'Content-type' : 'application/json',
                'Authorization' : "Basic " + b64str.decode('utf-8')}
-  
-    url = base_url + "/v1/line?sportId={0}&leagueId={1}&eventId={2}&periodNumber={3}&betType=MONEYLINE&team={4}&OddsFormat=DECIMAL"\
-            .format(bet['sportId'], bet['leagueId'], bet['eventId'],bet['period'], 'Team1')
+    url_without_team = base_url + "/v1/line?sportId={0}&leagueId={1}&eventId={2}&periodNumber={3}&betType=MONEYLINE&OddsFormat=DECIMAL"\
+            .format(bet['sportId'], bet['leagueId'], bet['eventId'],bet['period'])
 
+    url = url_without_team + "&Team=Team1"
     req = ulib.Request(url, headers=headers)
     responseData = ulib.urlopen(req).read()
     line_info = json.loads(responseData.decode('utf-8'))
-    bet['minRiskStake'] = line_info['minRiskStake']        
-    
+        
     if line_info['price'] < favourable_odds:
+        bet['minRiskStake'] = line_info['minRiskStake']            
         bet['team'] = "Team1"
-    else:
-        bet['team'] = "Team2"
+        return
+
+    url = url_without_team + "&Team=Team2"
+    req = ulib.Request(url, headers=headers)
+    responseData = ulib.urlopen(req).read()
+    line_info = json.loads(responseData.decode('utf-8'))
+    bet['minRiskStake'] = line_info['minRiskStake']            
+    bet['team'] = "Team2"
 
 def place_bet(base_url, username, password, bet, stake):
     
@@ -89,20 +95,26 @@ def place_bet(base_url, username, password, bet, stake):
 
     req = ulib.Request(url, headers = headers)
     response = ulib.urlopen(req, json.dumps(data).encode("utf-8")).read().decode()
-    print("Bet status: {}".format(response['status']))
+    response = json.loads(response)
+    print("Bet status: " + response["status"])
 
 if __name__ == "__main__":
     base_url = "https://api.pinnaclesports.com"
     username = <username>
     password = <password>
 
-    stake = 25
+    stake = 1.5
 
     balance = get_balance(base_url, username, password)
     odds = get_sport_odds(base_url, username, password)
     bet = find_bet(odds)
 
-    if len(bet > 0):
+    if len(bet) > 0:
         get_bet_info(base_url, username, password, bet)
-    if stake >= bet['minRiskStake']:
+    else:
+        print("No bets matching criteria")
+
+    if stake >= bet['minRiskStake'] and stake < balance['availableBalance']:
         place_bet(base_url, username, password, bet, stake)
+    else:
+        print("Stake too small, or not enough funds")
