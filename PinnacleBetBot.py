@@ -48,6 +48,8 @@ def find_bet(all_odds):
                 except:
                     pass
 
+    return bet_info
+
 def get_bet_info(base_url, username, password, bet, favourable_odds = 1.91):
 
     b64str = base64.b64encode("{}:{}".format(username,password).encode('utf-8'))
