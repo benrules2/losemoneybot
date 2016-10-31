@@ -100,8 +100,8 @@ def place_bet(base_url, username, password, bet, stake):
 
 if __name__ == "__main__":
     base_url = "https://api.pinnaclesports.com"
-    username = <username>
-    password = <password>
+    username = '<username>'
+    password = '<password>'
 
     stake = 1.5
 
