@@ -38,12 +38,15 @@ def find_bet(all_odds):
             bet_info['eventId'] = j['id']
             for k in j['periods']:
                 bet_info['period'] = k['number']
-                for l in k['moneyline'].keys():
-                    odds = float(k['moneyline'][l])
-                    if odds < favourable_odds and l == 'home':
-                        bet_info['team'] = l
-                        bet_info['lineId'] = k['lineId']
-                        return bet_info
+                try:
+                    for l in k['moneyline'].keys():
+                        odds = float(k['moneyline'][l])
+                        if odds < favourable_odds and l == 'home':
+                            bet_info['team'] = l
+                            bet_info['lineId'] = k['lineId']
+                            return bet_info
+                except:
+                    pass
 
 def get_bet_info(base_url, username, password, bet, favourable_odds = 1.91):
 
