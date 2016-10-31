@@ -48,7 +48,7 @@ def find_bet(all_odds):
                 except:
                     pass
 
-    return bet_info
+    return None
 
 def get_bet_info(base_url, username, password, bet, favourable_odds = 1.91):
 
@@ -114,10 +114,11 @@ if __name__ == "__main__":
     odds = get_sport_odds(base_url, username, password)
     bet = find_bet(odds)
 
-    if len(bet) > 0:
+    if bet:
         get_bet_info(base_url, username, password, bet)
     else:
         print("No bets matching criteria")
+        exit()
 
     if stake >= bet['minRiskStake'] and stake < balance['availableBalance']:
         place_bet(base_url, username, password, bet, stake)
